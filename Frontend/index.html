@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GeoIntel — Global Relocation & Travel Decision Engine</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;text-decoration:none;border:none;outline:none;font-family:'Poppins',sans-serif;}
+html{font-size:62.5%;scroll-behavior:smooth;}
+:root{--red:#b74b4b;--red-glow:rgba(183,75,75,0.35);--red-light:#d96060;--bg:#000;--surface:#0d0d0d;--surface2:#141414;--surface3:#1a1a1a;--border:rgba(183,75,75,0.2);--text:#fff;--text-muted:rgba(255,255,255,0.55);}
+body{width:100%;min-height:100vh;overflow-x:hidden;background-color:var(--bg);color:var(--text);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:#0a0a0a;}
+::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px;}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;width:100%;padding:1.5rem 9%;background:rgba(0,0,0,0.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:1px solid var(--border);transition:background .4s;}
+.logo{font-size:2.6rem;color:var(--red);font-weight:800;cursor:pointer;transition:.4s ease;letter-spacing:.05em;display:flex;align-items:center;gap:.8rem;}
+.logo i{font-size:2.4rem;}
+.logo:hover{transform:scale(1.08);text-shadow:0 0 20px var(--red);}
+.logo span{color:#fff;}
+nav a{font-size:1.5rem;color:var(--text);margin-left:3.5rem;font-weight:500;transition:.3s ease;border-bottom:2px solid transparent;padding-bottom:3px;}
+nav a:hover,nav a.active{color:var(--red);border-bottom-color:var(--red);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10rem 9% 5rem;position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(183,75,75,0.16) 0%,transparent 70%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(183,75,75,0.06) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(183,75,75,0.06) 0%,transparent 50%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(183,75,75,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(183,75,75,0.04) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 20s linear infinite;}
+@keyframes gridMove{0%{transform:translateY(0);}100%{transform:translateY(60px);}}
+.hero-badge{display:inline-flex;align-items:center;gap:.8rem;padding:.6rem 1.8rem;border:1px solid var(--border);border-radius:4rem;font-size:1.2rem;color:var(--red);margin-bottom:2.5rem;background:rgba(183,75,75,0.08);animation:fadeInDown .6s ease both;backdrop-filter:blur(6px);}
+.hero-badge i{animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-size:7rem;font-weight:800;line-height:1.1;margin-bottom:2rem;animation:fadeInDown .7s ease .1s both;}
+.hero h1 span{color:var(--red);}
+.hero p{font-size:1.8rem;color:var(--text-muted);max-width:60rem;line-height:1.7;margin-bottom:4rem;animation:fadeInDown .7s ease .2s both;}
+.hero-cta{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;animation:fadeInDown .7s ease .3s both;}
+.btn{display:inline-flex;align-items:center;gap:.8rem;padding:1.2rem 3rem;background-color:transparent;border-radius:4rem;font-size:1.6rem;color:var(--red);letter-spacing:.05rem;font-weight:600;border:2px solid var(--red);transition:.35s ease;cursor:pointer;}
+.btn:hover{background-color:var(--red);color:#000;box-shadow:0 0 30px var(--red-glow);transform:translateY(-2px);}
+.btn-solid{background-color:var(--red);color:#000;}
+.btn-solid:hover{background-color:transparent;color:var(--red);}
+.stats-bar{display:flex;justify-content:center;gap:5rem;flex-wrap:wrap;margin-top:5rem;animation:fadeInDown .7s ease .4s both;}
+.stat-item{text-align:center;}
+.stat-item .num{font-size:3rem;font-weight:800;color:var(--red);}
+.stat-item .label{font-size:1.2rem;color:var(--text-muted);}
+
+/* SECTIONS */
+section{padding:8rem 9%;}
+.section-label{display:inline-block;font-size:1.2rem;color:var(--red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.2rem;}
+.section-title{font-size:4.2rem;font-weight:700;line-height:1.2;margin-bottom:1.5rem;}
+.section-title span{color:var(--red);}
+.section-sub{font-size:1.6rem;color:var(--text-muted);max-width:55rem;line-height:1.7;}
+
+/* ANALYZER */
+#analyzer{background:var(--surface);position:relative;overflow:hidden;}
+#analyzer::before{content:'';position:absolute;top:-200px;right:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(183,75,75,0.1) 0%,transparent 70%);pointer-events:none;}
+.analyzer-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:5rem;align-items:start;margin-top:5rem;}
+.analyzer-info h3{font-size:2rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-muted);}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:1.5rem;}
+.feature-list li{display:flex;align-items:flex-start;gap:1.2rem;font-size:1.5rem;color:var(--text-muted);padding:1.2rem 1.5rem;background:var(--surface2);border-radius:1rem;border:1px solid var(--border);transition:.3s ease;}
+.feature-list li:hover{background:var(--surface3);border-color:rgba(183,75,75,0.4);color:var(--text);transform:translateX(5px);}
+.feature-list li i{color:var(--red);font-size:1.8rem;margin-top:.2rem;flex-shrink:0;}
+.feature-list li strong{display:block;color:var(--text);margin-bottom:.3rem;}
+
+/* FORM */
+.form-card{background:var(--surface2);border:1px solid var(--border);border-radius:2rem;padding:3.5rem;box-shadow:0 8px 40px rgba(0,0,0,0.4);position:relative;}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--red),transparent);border-radius:2rem 2rem 0 0;}
+.form-title{font-size:2.2rem;font-weight:700;margin-bottom:.5rem;}
+.form-subtitle{font-size:1.3rem;color:var(--text-muted);margin-bottom:3rem;}
+.form-group{margin-bottom:2.4rem;}
+.form-group label{display:flex;align-items:center;gap:.8rem;font-size:1.4rem;font-weight:500;margin-bottom:.8rem;color:rgba(255,255,255,.8);}
+.form-group label i{color:var(--red);font-size:1.4rem;}
+.chips-container{display:flex;flex-wrap:wrap;gap:.8rem;min-height:4.8rem;padding:1rem 1.6rem;background:var(--surface3);border:1px solid rgba(255,255,255,.1);border-radius:1rem;align-items:center;cursor:text;transition:.3s;}
+.chips-container:focus-within{border-color:var(--red);box-shadow:0 0 0 3px rgba(183,75,75,.12);}
+.chip{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.2rem;background:rgba(183,75,75,.15);border:1px solid rgba(183,75,75,.4);border-radius:4rem;font-size:1.3rem;color:var(--red);animation:chipIn .25s ease;}
+@keyframes chipIn{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.chip-remove{cursor:pointer;color:var(--red);transition:.25s;font-size:1.2rem;opacity:.7;}
+.chip-remove:hover{opacity:1;transform:rotate(90deg);}
+.chip-input{flex:1;min-width:14rem;background:transparent;color:var(--text);font-size:1.4rem;padding:.2rem 0;}
+.chip-hint{font-size:1.2rem;color:var(--text-muted);margin-top:.6rem;}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2.4rem;}
+.option-group label{font-size:1.4rem;font-weight:500;margin-bottom:.8rem;color:rgba(255,255,255,.8);display:flex;align-items:center;gap:.6rem;}
+.option-group label i{color:var(--red);}
+.toggle-group{display:flex;gap:.8rem;}
+.toggle-btn{flex:1;padding:1rem;background:var(--surface3);border:1px solid rgba(255,255,255,.1);border-radius:.8rem;color:var(--text-muted);font-size:1.3rem;font-weight:500;cursor:pointer;transition:.3s ease;text-align:center;}
+.toggle-btn:hover{border-color:rgba(183,75,75,.4);color:var(--text);}
+.toggle-btn.active{background:rgba(183,75,75,.15);border-color:var(--red);color:var(--red);box-shadow:0 0 12px rgba(183,75,75,.18);}
+.submit-btn{width:100%;padding:1.5rem;background:var(--red);color:#000;font-size:1.7rem;font-weight:700;border-radius:1rem;cursor:pointer;transition:.35s ease;display:flex;align-items:center;justify-content:center;gap:1rem;letter-spacing:.05em;position:relative;overflow:hidden;}
+.submit-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s;}
+.submit-btn:hover::before{width:350px;height:350px;}
+.submit-btn:hover{box-shadow:0 0 30px rgba(183,75,75,.5);transform:translateY(-2px);}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-spinner{width:2rem;height:2rem;border:3px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.submit-btn.loading .btn-text{display:none;}
+.submit-btn.loading .btn-spinner{display:block;}
+
+/* LOADING OVERLAY */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:2000;flex-direction:column;align-items:center;justify-content:center;gap:3rem;}
+.loading-overlay.active{display:flex;}
+.loading-globe{position:relative;width:100px;height:100px;}
+.loading-globe .ring{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;animation:spinRing 1.2s linear infinite;}
+.loading-globe .ring:nth-child(1){border-top-color:var(--red);}
+.loading-globe .ring:nth-child(2){border-right-color:rgba(183,75,75,.5);animation-duration:1.8s;animation-direction:reverse;}
+.loading-globe .ring:nth-child(3){inset:15px;border-bottom-color:rgba(183,75,75,.7);animation-duration:.9s;}
+.loading-globe .core{position:absolute;inset:30px;background:var(--red);border-radius:50%;animation:corePulse 1.2s ease-in-out infinite;}
+@keyframes spinRing{to{transform:rotate(360deg);}}
+@keyframes corePulse{0%,100%{transform:scale(.8);opacity:.7;}50%{transform:scale(1.2);opacity:1;}}
+.loading-text{font-size:2rem;font-weight:600;color:var(--text);}
+.loading-steps{display:flex;flex-direction:column;gap:1rem;min-width:28rem;}
+.loading-step{display:flex;align-items:center;gap:1.2rem;font-size:1.4rem;color:var(--text-muted);padding:.8rem 1.2rem;border-radius:.8rem;transition:.4s;}
+.loading-step.active{color:var(--text);background:rgba(183,75,75,.1);}
+.loading-step.done{color:#4caf50;}
+.loading-step .step-icon{font-size:1.6rem;width:2rem;text-align:center;}
+.loading-step.active .step-icon{color:var(--red);animation:blink .8s infinite;}
+.loading-step.done .step-icon{color:#4caf50;}
+
+/* RESULTS */
+#results{background:var(--bg);display:none;}
+#results.visible{display:block;animation:fadeInUp .6s ease;}
+.results-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4rem;flex-wrap:wrap;gap:2rem;}
+.results-meta{display:flex;gap:2rem;flex-wrap:wrap;}
+.meta-pill{display:inline-flex;align-items:center;gap:.6rem;padding:.6rem 1.4rem;background:var(--surface2);border:1px solid var(--border);border-radius:4rem;font-size:1.3rem;color:var(--text-muted);}
+.meta-pill i{color:var(--red);}
+.cache-info{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem;}
+.cache-pill{display:inline-flex;align-items:center;gap:.6rem;padding:.4rem 1.2rem;border-radius:4rem;font-size:1.2rem;font-weight:500;}
+.cache-pill.hit{background:rgba(76,175,80,.15);color:#4caf50;border:1px solid rgba(76,175,80,.3);}
+.cache-pill.miss{background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.3);}
+
+/* PODIUM */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:2rem;margin-bottom:5rem;flex-wrap:wrap;}
+.podium-item{display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:.3s ease;}
+.podium-item:hover{transform:translateY(-5px);}
+.podium-flag{font-size:4rem;margin-bottom:.8rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));}
+.podium-name{font-size:1.5rem;font-weight:600;margin-bottom:.5rem;}
+.podium-score{font-size:1.3rem;color:var(--red);font-weight:700;}
+.podium-block{width:10rem;border-radius:1rem 1rem 0 0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:800;color:rgba(255,255,255,.15);transition:.3s;}
+
+/* RANK CARDS */
+.rank-cards{display:flex;flex-direction:column;gap:2.5rem;}
+.rank-card{background:var(--surface2);border:1px solid var(--border);border-radius:1.8rem;padding:2.8rem;transition:.35s ease;cursor:pointer;position:relative;overflow:hidden;animation:slideIn .5s ease both;}
+.rank-card:nth-child(1){animation-delay:.05s;}
+.rank-card:nth-child(2){animation-delay:.1s;}
+.rank-card:nth-child(3){animation-delay:.15s;}
+.rank-card:nth-child(4){animation-delay:.2s;}
+.rank-card:nth-child(5){animation-delay:.25s;}
+@keyframes slideIn{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.rank-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red);transform:scaleY(0);transform-origin:bottom;transition:transform .35s ease;}
+.rank-card:hover{border-color:rgba(183,75,75,.5);box-shadow:0 8px 40px rgba(183,75,75,.1);transform:translateX(4px);}
+.rank-card:hover::before{transform:scaleY(1);}
+.rank-card.rank-1::before{background:#ffd700;}
+.rank-card.rank-2::before{background:#c0c0c0;}
+.rank-card.rank-3::before{background:#cd7f32;}
+.card-header{display:flex;align-items:center;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap;}
+.rank-badge{width:4.5rem;height:4.5rem;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:1.8rem;font-weight:800;flex-shrink:0;}
+.rank-badge.r1{background:rgba(255,215,0,.2);color:#ffd700;border:2px solid #ffd700;}
+.rank-badge.r2{background:rgba(192,192,192,.2);color:#c0c0c0;border:2px solid #c0c0c0;}
+.rank-badge.r3{background:rgba(205,127,50,.2);color:#cd7f32;border:2px solid #cd7f32;}
+.rank-badge.rn{background:var(--surface3);color:var(--text-muted);border:2px solid rgba(255,255,255,.1);}
+.country-flag{font-size:3.5rem;}
+.country-info{flex:1;}
+.country-name{font-size:2.2rem;font-weight:700;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.country-meta{font-size:1.3rem;color:var(--text-muted);display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.3rem;}
+.country-meta span{display:flex;align-items:center;gap:.4rem;}
+.overall-score{text-align:right;}
+.overall-score .score-num{font-size:4rem;font-weight:800;color:var(--red);line-height:1;}
+.overall-score .score-label{font-size:1.2rem;color:var(--text-muted);}
+.scores-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-bottom:2rem;}
+.score-metric{}
+.metric-header{display:flex;justify-content:space-between;font-size:1.3rem;margin-bottom:.8rem;}
+.metric-name{color:var(--text-muted);display:flex;align-items:center;gap:.5rem;}
+.metric-name i{color:var(--red);font-size:1.2rem;}
+.metric-value{font-weight:600;}
+.bar-track{height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--red),var(--red-light));width:0;transition:width 1.2s cubic-bezier(.17,.67,.38,1) .3s;}
+.bar-fill.green{background:linear-gradient(90deg,#2e7d32,#4caf50);}
+.bar-fill.amber{background:linear-gradient(90deg,#e65100,#ff9800);}
+.reasoning-box{background:var(--surface3);border-radius:1rem;padding:1.6rem;border-left:3px solid rgba(183,75,75,.5);margin-bottom:1.5rem;}
+.reasoning-box .reasoning-title{font-size:1.2rem;color:var(--red);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem;}
+.reasoning-box p{font-size:1.4rem;color:var(--text-muted);line-height:1.6;}
+.details-toggle{display:flex;align-items:center;gap:.8rem;font-size:1.3rem;color:var(--text-muted);cursor:pointer;transition:.3s;width:fit-content;}
+.details-toggle:hover{color:var(--red);}
+.details-toggle i{transition:transform .3s;}
+.details-toggle.open i{transform:rotate(180deg);}
+.country-details{max-height:0;overflow:hidden;transition:max-height .5s ease,padding .3s;}
+.country-details.open{max-height:400px;}
+.details-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;padding-top:2rem;}
+.detail-item{background:var(--surface3);border-radius:.8rem;padding:1.2rem;border:1px solid rgba(255,255,255,.05);transition:.3s;}
+.detail-item:hover{border-color:var(--border);}
+.detail-item .d-label{font-size:1.1rem;color:var(--text-muted);margin-bottom:.3rem;}
+.detail-item .d-value{font-size:1.5rem;font-weight:600;}
+.partial-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.3rem 1rem;background:rgba(255,152,0,.15);color:#ff9800;border:1px solid rgba(255,152,0,.3);border-radius:4rem;font-size:1.1rem;}
+
+/* HOW IT WORKS */
+#how{background:var(--surface);}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(22rem,1fr));gap:3rem;margin-top:5rem;}
+.step-card{background:var(--surface2);border:1px solid var(--border);border-radius:1.8rem;padding:3rem 2.5rem;position:relative;overflow:hidden;transition:.35s ease;}
+.step-card::after{content:attr(data-step);position:absolute;top:-1rem;right:1.5rem;font-size:8rem;font-weight:800;color:rgba(183,75,75,.05);line-height:1;}
+.step-card:hover{transform:translateY(-6px);border-color:rgba(183,75,75,.4);box-shadow:0 12px 40px rgba(183,75,75,.1);}
+.step-icon{width:5.5rem;height:5.5rem;background:rgba(183,75,75,.12);border:1px solid rgba(183,75,75,.3);border-radius:1.2rem;display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:var(--red);margin-bottom:2rem;}
+.step-card h3{font-size:1.8rem;font-weight:700;margin-bottom:1rem;}
+.step-card p{font-size:1.4rem;color:var(--text-muted);line-height:1.6;}
+
+/* METRICS */
+#metrics{background:var(--bg);}
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3rem;margin-top:5rem;}
+.metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:1.8rem;padding:3rem;transition:.35s ease;position:relative;overflow:hidden;}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.metric-card:nth-child(1)::before{background:linear-gradient(90deg,#b74b4b,#e57373);}
+.metric-card:nth-child(2)::before{background:linear-gradient(90deg,#1565c0,#42a5f5);}
+.metric-card:nth-child(3)::before{background:linear-gradient(90deg,#2e7d32,#66bb6a);}
+.metric-card:hover{transform:translateY(-6px);box-shadow:0 16px 50px rgba(0,0,0,.3);}
+.metric-card-icon{font-size:3.5rem;margin-bottom:1.5rem;}
+.metric-card:nth-child(1) .metric-card-icon{color:var(--red);}
+.metric-card:nth-child(2) .metric-card-icon{color:#42a5f5;}
+.metric-card:nth-child(3) .metric-card-icon{color:#66bb6a;}
+.metric-card h3{font-size:2rem;font-weight:700;margin-bottom:1rem;}
+.metric-card p{font-size:1.4rem;color:var(--text-muted);line-height:1.6;margin-bottom:2rem;}
+.metric-factors{display:flex;flex-direction:column;gap:.8rem;}
+.factor{display:flex;align-items:center;gap:1rem;font-size:1.3rem;color:var(--text-muted);}
+.factor::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.metric-card:nth-child(2) .factor::before{background:#42a5f5;}
+.metric-card:nth-child(3) .factor::before{background:#66bb6a;}
+
+/* FOOTER */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:4rem 9%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem;}
+footer p{font-size:1.4rem;color:var(--text-muted);}
+.footer-links{display:flex;gap:2rem;}
+.footer-links a{font-size:1.4rem;color:var(--text-muted);transition:.3s;}
+.footer-links a:hover{color:var(--red);}
+
+/* TOAST */
+.toast{position:fixed;bottom:3rem;right:3rem;padding:1.4rem 2.2rem;background:var(--surface2);border:1px solid var(--border);border-radius:1rem;font-size:1.4rem;display:flex;align-items:center;gap:1rem;z-index:3000;box-shadow:0 8px 30px rgba(0,0,0,.4);transform:translateY(10rem);opacity:0;transition:.4s cubic-bezier(.17,.67,.38,1);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.error{border-color:rgba(183,75,75,.5);}
+.toast.success{border-color:rgba(76,175,80,.5);}
+.toast i{font-size:1.8rem;}
+.toast.error i{color:var(--red);}
+.toast.success i{color:#4caf50;}
+
+/* ANIMATIONS */
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.fade-in-up{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease;}
+.fade-in-up.visible{opacity:1;transform:none;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.analyzer-layout{grid-template-columns:1fr;}.metrics-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:768px){html{font-size:55%;}.hero h1{font-size:5rem;}.scores-grid{grid-template-columns:1fr;}.details-grid{grid-template-columns:repeat(2,1fr);}.options-grid{grid-template-columns:1fr;}.metrics-grid{grid-template-columns:1fr;}.podium{display:none;}}
+@media(max-width:480px){.hero h1{font-size:4rem;}.section-title{font-size:3rem;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <i class="fa-solid fa-earth-americas"></i>
+    Geo<span>Intel</span>
+  </div>
+  <nav>
+    <a href="#home" class="active">Home</a>
+    <a href="#analyzer">Analyze</a>
+    <a href="#how">How It Works</a>
+    <a href="#metrics">Metrics</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">
+    <i class="fa-solid fa-circle-dot"></i>
+    Real-time Intelligence Engine
+  </div>
+  <h1>Global <span>Relocation</span><br>Decision Engine</h1>
+  <p>Evaluate multiple destinations simultaneously with live data, AI-powered scoring, and multi-factor analysis to make confident relocation and travel decisions.</p>
+  <div class="hero-cta">
+    <a href="#analyzer" class="btn btn-solid">
+      <i class="fa-solid fa-magnifying-glass-chart"></i>
+      Start Analyzing
+    </a>
+    <a href="#how" class="btn">
+      <i class="fa-solid fa-circle-play"></i>
+      How It Works
+    </a>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="num" data-count="195">0</div><div class="label">Countries</div></div>
+    <div class="stat-item"><div class="num" data-count="3">0</div><div class="label">APIs Integrated</div></div>
+    <div class="stat-item"><div class="num" data-count="3">0</div><div class="label">Intelligence Scores</div></div>
+    <div class="stat-item"><div class="num" data-count="60">0</div><div class="label">Min Cache TTL</div></div>
+  </div>
+</section>
+
+<!-- ANALYZER -->
+<section id="analyzer">
+  <div class="section-label">Intelligence Engine</div>
+  <div class="section-title">Destination <span>Analyzer</span></div>
+  <div class="section-sub">Enter countries, set your preferences, and get ranked explainable recommendations powered by live data.</div>
+  <div class="analyzer-layout">
+    <div class="analyzer-info">
+      <h3>What we analyze</h3>
+      <ul class="feature-list">
+        <li><i class="fa-solid fa-shield-halved"></i><div><strong>Travel Risk Score</strong>Temperature extremes, AQI severity, and advisory risk level combined into a single risk index.</div></li>
+        <li><i class="fa-solid fa-heart-pulse"></i><div><strong>Health Infrastructure Score</strong>Healthcare expenditure, life expectancy, and population pressure adjustment per country.</div></li>
+        <li><i class="fa-solid fa-leaf"></i><div><strong>Environmental Stability Score</strong>Weather volatility, AQI trends, and additional environmental indicators for sustainability.</div></li>
+        <li><i class="fa-solid fa-weight-scale"></i><div><strong>Dynamic Weight Logic</strong>Risk tolerance and duration dynamically adjust scoring weights for personalized results.</div></li>
+        <li><i class="fa-solid fa-database"></i><div><strong>Smart Caching</strong>60-minute cache with concurrent deduplication for optimal performance.</div></li>
+      </ul>
+    </div>
+    <div class="form-card">
+      <div class="form-title">Analyze Destinations</div>
+      <div class="form-subtitle">Provide at least 3 countries for comparative analysis</div>
+      <div class="form-group">
+        <label><i class="fa-solid fa-earth-americas"></i> Countries to Analyze</label>
+        <div class="chips-container" id="chips-container" onclick="focusInput()">
+          <input type="text" class="chip-input" id="chip-input" placeholder="Type country and press Enter…" autocomplete="off"/>
+        </div>
+        <div class="chip-hint"><i class="fa-solid fa-circle-info"></i> Press Enter or comma to add. Minimum 3 countries required.</div>
+      </div>
+      <div class="options-grid">
+        <div class="option-group">
+          <label><i class="fa-solid fa-gauge-high"></i> Risk Tolerance</label>
+          <div class="toggle-group" id="risk-toggle">
+            <button class="toggle-btn active" data-value="Low">Low</button>
+            <button class="toggle-btn" data-value="Moderate">Moderate</button>
+            <button class="toggle-btn" data-value="High">High</button>
+          </div>
+        </div>
+        <div class="option-group">
+          <label><i class="fa-solid fa-calendar-days"></i> Duration of Stay</label>
+          <div class="toggle-group" id="duration-toggle">
+            <button class="toggle-btn active" data-value="Short-term">Short-term</button>
+            <button class="toggle-btn" data-value="Long-term">Long-term</button>
+          </div>
+        </div>
+      </div>
+      <button class="submit-btn" id="analyze-btn" onclick="handleAnalyze()">
+        <span class="btn-text"><i class="fa-solid fa-magnifying-glass-chart"></i>&nbsp; Analyze Destinations</span>
+        <span class="btn-spinner"></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="results-header">
+    <div>
+      <div class="section-label">Analysis Complete</div>
+      <div class="section-title">Ranked <span>Results</span></div>
+    </div>
+    <div>
+      <div class="results-meta" id="results-meta"></div>
+      <div class="cache-info" id="cache-info"></div>
+    </div>
+  </div>
+  <div class="podium" id="podium"></div>
+  <div class="rank-cards" id="rank-cards"></div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">Process</div>
+  <div class="section-title fade-in-up">How It <span>Works</span></div>
+  <div class="section-sub fade-in-up">A transparent, step-by-step intelligence pipeline from raw data to ranked decisions.</div>
+  <div class="steps-grid">
+    <div class="step-card fade-in-up" data-step="01"><div class="step-icon"><i class="fa-solid fa-database"></i></div><h3>Data Aggregation</h3><p>Concurrent API calls fetch country profiles, live weather, AQI, healthcare stats, and travel advisories from independent public sources.</p></div>
+    <div class="step-card fade-in-up" data-step="02"><div class="step-icon"><i class="fa-solid fa-sliders"></i></div><h3>Normalization</h3><p>All heterogeneous metrics are normalized to a 0–100 scale ensuring fair, comparable scoring across countries with different data ranges.</p></div>
+    <div class="step-card fade-in-up" data-step="03"><div class="step-icon"><i class="fa-solid fa-calculator"></i></div><h3>Score Computation</h3><p>Three intelligence scores computed per country — Travel Risk, Health Infrastructure, and Environmental Stability.</p></div>
+    <div class="step-card fade-in-up" data-step="04"><div class="step-icon"><i class="fa-solid fa-weight-scale"></i></div><h3>Dynamic Weighting</h3><p>Risk tolerance and duration of stay dynamically shift scoring weights — prioritizing what matters most for your context.</p></div>
+    <div class="step-card fade-in-up" data-step="05"><div class="step-icon"><i class="fa-solid fa-trophy"></i></div><h3>Ranked Results</h3><p>Countries ranked most to least suitable with a composite score and structured reasoning citing key contributing factors.</p></div>
+    <div class="step-card fade-in-up" data-step="06"><div class="step-icon"><i class="fa-solid fa-bolt"></i></div><h3>Smart Caching</h3><p>Results cached 60 minutes with cache-hit deduplication. Subsequent analyses of cached countries respond instantly.</p></div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics">
+  <div class="section-label">Intelligence Scoring</div>
+  <div class="section-title fade-in-up">The Three <span>Metrics</span></div>
+  <div class="section-sub fade-in-up">Each score is derived from multiple normalized indicators and dynamically weighted based on your preferences.</div>
+  <div class="metrics-grid">
+    <div class="metric-card fade-in-up"><div class="metric-card-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Travel Risk Score</h3><p>Measures immediate safety and comfort, applying consistent penalties for dangerous conditions.</p><div class="metric-factors"><div class="factor">Temperature extremes (penalty-based)</div><div class="factor">Air Quality Index severity</div><div class="factor">Government advisory risk level</div></div></div>
+    <div class="metric-card fade-in-up"><div class="metric-card-icon"><i class="fa-solid fa-heart-pulse"></i></div><h3>Health Infrastructure Score</h3><p>Evaluates how well a country can support your health over time, scaled for fair comparison.</p><div class="metric-factors"><div class="factor">Healthcare expenditure % of GDP</div><div class="factor">Life expectancy at birth</div><div class="factor">Population pressure adjustment</div></div></div>
+    <div class="metric-card fade-in-up"><div class="metric-card-icon"><i class="fa-solid fa-leaf"></i></div><h3>Environmental Stability Score</h3><p>Assesses long-term environmental conditions and resilience for sustainable living.</p><div class="metric-factors"><div class="factor">Weather volatility & seasonal variance</div><div class="factor">AQI trends over time</div><div class="factor">Additional environmental indicators</div></div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo"><i class="fa-solid fa-earth-americas"></i>Geo<span>Intel</span></div>
+  <p>Global Relocation & Travel Decision Intelligence Engine</p>
+  <div class="footer-links">
+    <a href="#home">Home</a>
+    <a href="#analyzer">Analyze</a>
+    <a href="#metrics">Metrics</a>
+  </div>
+</footer>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-globe">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="core"></div>
+  </div>
+  <div class="loading-text" id="loading-text">Initializing analysis…</div>
+  <div class="loading-steps">
+    <div class="loading-step" id="step-fetch"><span class="step-icon"><i class="fa-solid fa-cloud-arrow-down"></i></span> Fetching country data</div>
+    <div class="loading-step" id="step-aqi"><span class="step-icon"><i class="fa-solid fa-wind"></i></span> Retrieving AQI &amp; weather</div>
+    <div class="loading-step" id="step-health"><span class="step-icon"><i class="fa-solid fa-heart-pulse"></i></span> Analyzing health metrics</div>
+    <div class="loading-step" id="step-score"><span class="step-icon"><i class="fa-solid fa-calculator"></i></span> Computing intelligence scores</div>
+    <div class="loading-step" id="step-rank"><span class="step-icon"><i class="fa-solid fa-trophy"></i></span> Ranking destinations</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="fa-solid fa-circle-info"></i><span id="toast-msg"></span></div>
+
+<script>
+/* ── STATE ── */
+let countries=[], riskTolerance='Low', duration='Short-term', isAnalyzing=false;
+
+/* ── FLAGS ── */
+const flagMap={'france':'🇫🇷','germany':'🇩🇪','japan':'🇯🇵','india':'🇮🇳','usa':'🇺🇸','united states':'🇺🇸','uk':'🇬🇧','united kingdom':'🇬🇧','canada':'🇨🇦','australia':'🇦🇺','brazil':'🇧🇷','china':'🇨🇳','italy':'🇮🇹','spain':'🇪🇸','portugal':'🇵🇹','netherlands':'🇳🇱','sweden':'🇸🇪','norway':'🇳🇴','denmark':'🇩🇰','switzerland':'🇨🇭','singapore':'🇸🇬','new zealand':'🇳🇿','south korea':'🇰🇷','thailand':'🇹🇭','vietnam':'🇻🇳','indonesia':'🇮🇩','malaysia':'🇲🇾','philippines':'🇵🇭','egypt':'🇪🇬','south africa':'🇿🇦','nigeria':'🇳🇬','kenya':'🇰🇪','mexico':'🇲🇽','argentina':'🇦🇷','chile':'🇨🇱','colombia':'🇨🇴','peru':'🇵🇪','turkey':'🇹🇷','russia':'🇷🇺','poland':'🇵🇱','austria':'🇦🇹','belgium':'🇧🇪','ireland':'🇮🇪','finland':'🇫🇮','greece':'🇬🇷','uae':'🇦🇪','united arab emirates':'🇦🇪','iceland':'🇮🇸','taiwan':'🇹🇼'};
+function getFlag(n){return flagMap[n.toLowerCase()]||'🌐';}
+
+/* ── CHIPS ── */
+function focusInput(){document.getElementById('chip-input').focus();}
+document.getElementById('chip-input').addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===',')&&this.value.trim()){e.preventDefault();addCountry(this.value.trim().replace(/,/g,''));this.value='';}
+  if(e.key==='Backspace'&&!this.value&&countries.length){removeCountry(countries[countries.length-1]);}
+});
+function cap(s){return s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');}
+function addCountry(name){
+  const n=cap(name);
+  if(countries.map(c=>c.toLowerCase()).includes(name.toLowerCase())){showToast('Already added','error');return;}
+  countries.push(n);renderChips();
+}
+function removeCountry(name){countries=countries.filter(c=>c!==name);renderChips();}
+function renderChips(){
+  const con=document.getElementById('chips-container');
+  const inp=document.getElementById('chip-input');
+  con.innerHTML='';
+  countries.forEach(c=>{
+    const d=document.createElement('div');d.className='chip';
+    d.innerHTML=`${getFlag(c)} ${c} <span class="chip-remove" onclick="removeCountry('${c.replace(/'/g,"\\'")}')"><i class="fa-solid fa-xmark"></i></span>`;
+    con.appendChild(d);
+  });
+  con.appendChild(inp);inp.focus();
+}
+
+/* ── TOGGLES ── */
+document.querySelectorAll('#risk-toggle .toggle-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#risk-toggle .toggle-btn').forEach(x=>x.classList.remove('active'));this.classList.add('active');riskTolerance=this.dataset.value;}));
+document.querySelectorAll('#duration-toggle .toggle-btn').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('#duration-toggle .toggle-btn').forEach(x=>x.classList.remove('active'));this.classList.add('active');duration=this.dataset.value;}));
+
+/* ── TOAST ── */
+let toastTimer;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.className='toast show '+type;
+  t.querySelector('i').className=type==='error'?'fa-solid fa-circle-exclamation':type==='success'?'fa-solid fa-circle-check':'fa-solid fa-circle-info';
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+/* ── LOADING ── */
+const STEPS=['step-fetch','step-aqi','step-health','step-score','step-rank'];
+const MSGS=['Connecting to data sources…','Fetching environmental data…','Processing health metrics…','Running scoring algorithms…','Finalizing rankings…'];
+let stepTimer;
+function startLoading(){
+  let i=0;
+  document.querySelectorAll('.loading-step').forEach(s=>s.className='loading-step');
+  function next(){if(i<STEPS.length){if(i>0)document.getElementById(STEPS[i-1]).className='loading-step done';document.getElementById(STEPS[i]).className='loading-step active';document.getElementById('loading-text').textContent=MSGS[i];i++;stepTimer=setTimeout(next,600+Math.random()*400);}}
+  next();
+}
+function stopLoading(){clearTimeout(stepTimer);STEPS.forEach(s=>document.getElementById(s).className='loading-step done');}
+
+/* ── MOCK API ── */
+function mockApi(list,risk,dur){
+  const base={
+    'France':{capital:'Paris',pop:'68M',cur:'EUR',temp:14,aqi:52,adv:1,hExp:11.1,lifeExp:82.3},
+    'Germany':{capital:'Berlin',pop:'84M',cur:'EUR',temp:10,aqi:38,adv:1,hExp:12.8,lifeExp:81.1},
+    'Japan':{capital:'Tokyo',pop:'125M',cur:'JPY',temp:16,aqi:44,adv:1,hExp:10.9,lifeExp:84.2},
+    'India':{capital:'New Delhi',pop:'1.4B',cur:'INR',temp:32,aqi:160,adv:2,hExp:3.5,lifeExp:70.8},
+    'Usa':{capital:'Washington D.C.',pop:'335M',cur:'USD',temp:18,aqi:55,adv:1,hExp:17.0,lifeExp:76.1},
+    'Canada':{capital:'Ottawa',pop:'38M',cur:'CAD',temp:5,aqi:28,adv:1,hExp:10.8,lifeExp:82.7},
+    'Australia':{capital:'Canberra',pop:'26M',cur:'AUD',temp:22,aqi:30,adv:1,hExp:9.9,lifeExp:83.4},
+    'Brazil':{capital:'Brasília',pop:'215M',cur:'BRL',temp:26,aqi:75,adv:2,hExp:9.9,lifeExp:75.5},
+    'China':{capital:'Beijing',pop:'1.4B',cur:'CNY',temp:15,aqi:155,adv:2,hExp:5.4,lifeExp:77.1},
+    'Italy':{capital:'Rome',pop:'60M',cur:'EUR',temp:18,aqi:60,adv:1,hExp:9.1,lifeExp:83.4},
+    'Spain':{capital:'Madrid',pop:'47M',cur:'EUR',temp:20,aqi:42,adv:1,hExp:9.0,lifeExp:83.5},
+    'Singapore':{capital:'Singapore',pop:'5.9M',cur:'SGD',temp:28,aqi:40,adv:1,hExp:6.1,lifeExp:83.9},
+    'New Zealand':{capital:'Wellington',pop:'5M',cur:'NZD',temp:15,aqi:22,adv:1,hExp:9.6,lifeExp:82.5},
+    'Thailand':{capital:'Bangkok',pop:'70M',cur:'THB',temp:34,aqi:88,adv:1,hExp:3.8,lifeExp:77.1},
+    'Portugal':{capital:'Lisbon',pop:'10M',cur:'EUR',temp:19,aqi:35,adv:1,hExp:9.5,lifeExp:81.9},
+    'Sweden':{capital:'Stockholm',pop:'10M',cur:'SEK',temp:7,aqi:25,adv:1,hExp:11.0,lifeExp:82.8},
+    'Norway':{capital:'Oslo',pop:'5.4M',cur:'NOK',temp:6,aqi:22,adv:1,hExp:11.4,lifeExp:83.2},
+    'Switzerland':{capital:'Bern',pop:'8.7M',cur:'CHF',temp:10,aqi:30,adv:1,hExp:11.9,lifeExp:83.8},
+    'South Korea':{capital:'Seoul',pop:'51M',cur:'KRW',temp:13,aqi:66,adv:1,hExp:8.4,lifeExp:83.0},
+    'Netherlands':{capital:'Amsterdam',pop:'17.9M',cur:'EUR',temp:11,aqi:43,adv:1,hExp:10.2,lifeExp:82.3},
+  };
+  let wR=0.35,wH=0.35,wE=0.30;
+  if(dur==='Long-term'){wH=0.45;wR=0.25;wE=0.30;}
+  if(risk==='High'){wR=0.20;wH=0.40;wE=0.40;}
+  if(risk==='Low'){wR=0.45;wH=0.30;wE=0.25;}
+  const res=list.map(name=>{
+    const d=base[name]||{capital:name+' City',pop:'~50M',cur:'N/A',temp:20+(Math.random()*15|0),aqi:50+(Math.random()*80|0),adv:[1,1,2][Math.random()*3|0],hExp:4+Math.random()*8,lifeExp:68+Math.random()*15,partial:true};
+    let pen=0;
+    if(d.temp>38||d.temp<-10)pen+=25;else if(d.temp>35||d.temp<0)pen+=12;
+    if(d.aqi>150)pen+=30;else if(d.aqi>100)pen+=18;else if(d.aqi>50)pen+=8;
+    if(risk==='Low')pen*=1.3;if(risk==='High')pen*=0.7;
+    pen+=(d.adv-1)*15;
+    const tR=Math.max(0,Math.min(100,100-pen));
+    const hN=Math.min(100,(d.hExp/18)*100);
+    const lN=Math.min(100,((d.lifeExp-60)/30)*100);
+    const pF=d.pop&&d.pop.includes('B')?0.85:1;
+    const hS=Math.min(100,(hN*0.4+lN*0.6)*pF);
+    const aN=Math.max(0,100-(d.aqi/3));
+    const tD=Math.abs(d.temp-20);
+    const eS=Math.min(100,aN*0.6+Math.max(0,100-tD*1.5)*0.4);
+    const comp=tR*wR+hS*wH+eS*wE;
+    const facts=[];
+    if(d.aqi>150)facts.push('critically high AQI');else if(d.aqi>100)facts.push('elevated AQI');else facts.push('acceptable air quality');
+    if(d.adv>1)facts.push('elevated advisory level');
+    if(d.hExp>10)facts.push('strong healthcare expenditure');else if(d.hExp<5)facts.push('limited healthcare investment');
+    if(d.lifeExp>82)facts.push('high life expectancy');
+    if(d.temp>35)facts.push('extreme heat conditions');
+    const reasoning=`Ranked based on ${facts.slice(0,3).join(', ')}. `+(dur==='Long-term'?'Long-term weighting prioritizes health metrics. ':'Short-term weighting prioritizes current conditions. ')+(risk==='Low'?'Low risk tolerance amplifies safety penalties.':risk==='High'?'High risk tolerance reduces environmental penalties.':'Moderate risk balances all scoring dimensions.');
+    return{name,capital:d.capital,pop:d.pop,cur:d.cur,temp:d.temp,aqi:d.aqi,adv:d.adv,hExp:parseFloat(d.hExp).toFixed(1),lifeExp:parseFloat(d.lifeExp).toFixed(1),scores:{tR:Math.round(tR),hS:Math.round(hS),eS:Math.round(eS),comp:Math.round(comp)},reasoning,partial:d.partial||false,cached:Math.random()>.5};
+  });
+  res.sort((a,b)=>b.scores.comp-a.scores.comp);
+  res.forEach((r,i)=>r.rank=i+1);
+  return{success:true,analyzed_at:new Date().toISOString(),risk_tolerance:risk,duration:dur,weights:{tR:wR,hS:wH,eS:wE},results:res,cache:{hits:res.filter(r=>r.cached).map(r=>r.name),misses:res.filter(r=>!r.cached).map(r=>r.name)}};
+}
+
+/* ── ANALYZE ── */
+async function handleAnalyze(){
+  if(isAnalyzing)return;
+  const inp=document.getElementById('chip-input');
+  if(inp.value.trim()){addCountry(inp.value.trim());inp.value='';}
+  if(countries.length<3){showToast('Add at least 3 countries','error');return;}
+  isAnalyzing=true;
+  const btn=document.getElementById('analyze-btn');
+  btn.disabled=true;btn.classList.add('loading');
+  document.getElementById('loading-overlay').classList.add('active');
+  startLoading();
+  await new Promise(r=>setTimeout(r,3200+Math.random()*800));
+  const data=mockApi(countries,riskTolerance,duration);
+  stopLoading();await new Promise(r=>setTimeout(r,400));
+  document.getElementById('loading-overlay').classList.remove('active');
+  btn.disabled=false;btn.classList.remove('loading');
+  isAnalyzing=false;
+  renderResults(data);
+  showToast(`Analysis complete! ${data.results.length} countries ranked.`,'success');
+  document.getElementById('results').scrollIntoView({behavior:'smooth'});
+}
+
+/* ── RENDER ── */
+function renderResults(data){
+  const sec=document.getElementById('results');
+  sec.style.display='block';sec.classList.add('visible');
+  document.getElementById('results-meta').innerHTML=
+    `<div class="meta-pill"><i class="fa-solid fa-gauge-high"></i> Risk: ${data.risk_tolerance}</div>
+     <div class="meta-pill"><i class="fa-solid fa-calendar-days"></i> ${data.duration}</div>
+     <div class="meta-pill"><i class="fa-solid fa-clock"></i> ${new Date(data.analyzed_at).toLocaleTimeString()}</div>`;
+  document.getElementById('cache-info').innerHTML=
+    data.cache.hits.map(n=>`<div class="cache-pill hit"><i class="fa-solid fa-bolt"></i>${n}</div>`).join('')+
+    data.cache.misses.map(n=>`<div class="cache-pill miss"><i class="fa-solid fa-cloud-arrow-down"></i>${n}</div>`).join('');
+
+  // Podium
+  const top3=data.results.slice(0,3);
+  const ord=top3.length>=2?[top3[1],top3[0],top3[2]].filter(Boolean):top3;
+  document.getElementById('podium').innerHTML=ord.map(r=>{
+    const h=r.rank===1?'15rem':r.rank===2?'10rem':'8rem';
+    const bg=r.rank===1?'rgba(255,215,0,0.3)':r.rank===2?'rgba(192,192,192,0.3)':'rgba(205,127,50,0.3)';
+    return`<div class="podium-item" onclick="document.getElementById('card-${r.name.replace(/\s/g,'-')}').scrollIntoView({behavior:'smooth'})">
+      <div class="podium-flag">${getFlag(r.name)}</div>
+      <div class="podium-name">${r.name}</div>
+      <div class="podium-score">${r.scores.comp}/100</div>
+      <div class="podium-block" style="height:${h};background:linear-gradient(to top,${bg},transparent);border:1px solid ${bg};">${r.rank}</div>
+    </div>`;
+  }).join('');
+
+  // Cards
+  document.getElementById('rank-cards').innerHTML=data.results.map(r=>{
+    const bc=r.rank<=3?`r${r.rank}`:'rn';
+    const c=(v)=>v>=70?'green':v<45?'amber':'';
+    const id=r.name.replace(/\s/g,'-');
+    return`<div class="rank-card rank-${r.rank}" id="card-${id}">
+      <div class="card-header">
+        <div class="rank-badge ${bc}">${r.rank}</div>
+        <div class="country-flag">${getFlag(r.name)}</div>
+        <div class="country-info">
+          <div class="country-name">${r.name}${r.partial?` <span class="partial-badge"><i class="fa-solid fa-triangle-exclamation"></i> Partial Data</span>`:''}</div>
+          <div class="country-meta">
+            <span><i class="fa-solid fa-location-dot"></i>${r.capital}</span>
+            <span><i class="fa-solid fa-people-group"></i>${r.pop}</span>
+            <span><i class="fa-solid fa-money-bill"></i>${r.cur}</span>
+          </div>
+        </div>
+        <div class="overall-score"><div class="score-num">${r.scores.comp}</div><div class="score-label">Overall Score</div></div>
+      </div>
+      <div class="scores-grid">
+        <div class="score-metric"><div class="metric-header"><span class="metric-name"><i class="fa-solid fa-shield-halved"></i>Travel Risk</span><span class="metric-value">${r.scores.tR}/100</span></div><div class="bar-track"><div class="bar-fill ${c(r.scores.tR)}" data-w="${r.scores.tR}"></div></div></div>
+        <div class="score-metric"><div class="metric-header"><span class="metric-name"><i class="fa-solid fa-heart-pulse"></i>Health</span><span class="metric-value">${r.scores.hS}/100</span></div><div class="bar-track"><div class="bar-fill ${c(r.scores.hS)}" data-w="${r.scores.hS}"></div></div></div>
+        <div class="score-metric"><div class="metric-header"><span class="metric-name"><i class="fa-solid fa-leaf"></i>Environment</span><span class="metric-value">${r.scores.eS}/100</span></div><div class="bar-track"><div class="bar-fill ${c(r.scores.eS)}" data-w="${r.scores.eS}"></div></div></div>
+      </div>
+      <div class="reasoning-box"><div class="reasoning-title"><i class="fa-solid fa-brain"></i> Intelligence Reasoning</div><p>${r.reasoning}</p></div>
+      <div class="details-toggle" onclick="toggleDet(this,'${id}')"><i class="fa-solid fa-chevron-down"></i> View raw data</div>
+      <div class="country-details" id="det-${id}">
+        <div class="details-grid">
+          <div class="detail-item"><div class="d-label">Temperature</div><div class="d-value">${r.temp}°C</div></div>
+          <div class="detail-item"><div class="d-label">AQI</div><div class="d-value" style="color:${r.aqi>150?'#f44336':r.aqi>100?'#ff9800':'#4caf50'}">${r.aqi}</div></div>
+          <div class="detail-item"><div class="d-label">Advisory</div><div class="d-value" style="color:${r.adv>1?'#ff9800':'#4caf50'}">Level ${r.adv}</div></div>
+          <div class="detail-item"><div class="d-label">Healthcare Exp.</div><div class="d-value">${r.hExp}% GDP</div></div>
+          <div class="detail-item"><div class="d-label">Life Expectancy</div><div class="d-value">${r.lifeExp} yrs</div></div>
+          <div class="detail-item"><div class="d-label">Capital</div><div class="d-value">${r.capital}</div></div>
+          <div class="detail-item"><div class="d-label">Population</div><div class="d-value">${r.pop}</div></div>
+          <div class="detail-item"><div class="d-label">Currency</div><div class="d-value">${r.cur}</div></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  setTimeout(()=>{document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.w+'%';});},150);
+}
+
+function toggleDet(el,id){
+  el.classList.toggle('open');
+  document.getElementById('det-'+id).classList.toggle('open');
+}
+
+/* ── SCROLL OBSERVER ── */
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.15});
+document.querySelectorAll('.fade-in-up').forEach(el=>obs.observe(el));
+
+/* ── COUNTER ── */
+function animCount(el,t,s=''){let c=0;const st=t/60;const tm=setInterval(()=>{c=Math.min(c+st,t);el.textContent=Math.floor(c)+s;if(c>=t)clearInterval(tm);},20);}
+const cobs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const t=+e.target.dataset.count;const lbl=e.target.closest('.stat-item').querySelector('.label').textContent;animCount(e.target,t,lbl==='Min Cache TTL'?'m':'+');cobs.unobserve(e.target);}}),{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cobs.observe(el));
+
+/* ── NAV ACTIVE ── */
+window.addEventListener('scroll',()=>{
+  const ids=['home','analyzer','how','metrics'];
+  let cur='home';
+  ids.forEach(id=>{const el=document.getElementById(id);if(el&&window.scrollY>=el.offsetTop-200)cur=id;});
+  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+});
+</script>
+</body>
+</html>
