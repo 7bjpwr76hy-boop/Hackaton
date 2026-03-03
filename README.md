@@ -61,7 +61,7 @@ global_engine_backend/
       ├── weighting.py
       └── score_engine.py
 
-Step 2: Public API Integration
+Step 1: Public API Integration
 The backend connects to multiple real public APIs to fetch:
 * Country profile data
 * Healthcare indicators
@@ -69,7 +69,7 @@ The backend connects to multiple real public APIs to fetch:
 * Air Quality Index (AQI)
 Each API provides a different dimension of intelligence.
 
-Step 1: Input Handling
+Step 2: Input Handling
 The backend receives user input through a single API endpoint:
 * List of countries
 * Risk tolerance
