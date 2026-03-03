@@ -128,7 +128,7 @@ In simple terms:
 This makes the system practical, scalable, and real-world ready.
 
 
-📦 Required Libraries & Environment Setup
+📦 Required Libraries & Environment Setup.. 
 S.No	Tool / Library	Why It Is Needed	Install / Setup Command
 1️⃣	Python 3.8+ ->	Core programming language used to build the backend	Download from python.org
  2️⃣	venv (Virtual Environment) ->	Creates an isolated environment to manage project dependencies separately from system Python	python -m venv venv
