@@ -131,14 +131,14 @@ This makes the system practical, scalable, and real-world ready.
 📦 Required Libraries & Environment Setup
 S.No	Tool / Library	Why It Is Needed	Install / Setup Command
 1️⃣	Python 3.8+ ->	Core programming language used to build the backend	Download from python.org
-2️⃣	venv (Virtual Environment) ->	Creates an isolated environment to manage project dependencies separately from system Python	python -m venv venv
-3️⃣	fastapi	-> Backend web framework used to build REST API endpoints	pip install fastapi
-4️⃣	uvicorn	-> ASGI server used to run the FastAPI application	pip install uvicorn
-5️⃣	httpx ->	Async HTTP client used to fetch data from public APIs	pip install httpx
-6️⃣	python-dotenv ->	Loads API keys securely from .env file	pip install python-dotenv
-7️⃣	pydantic ->	Validates request body and ensures structured input data	pip install pydantic
-8️⃣	asyncio -> (Built-in)	Handles asynchronous concurrency for API calls	No installation required
-9️⃣	requests (Optional) ->	For synchronous API calls (if needed)	pip install requests
+ 2️⃣	venv (Virtual Environment) ->	Creates an isolated environment to manage project dependencies separately from system Python	python -m venv venv
+ 3️⃣	fastapi	-> Backend web framework used to build REST API endpoints	pip install fastapi
+ 4️⃣	uvicorn	-> ASGI server used to run the FastAPI application	pip install uvicorn
+ 5️⃣	httpx ->	Async HTTP client used to fetch data from public APIs	pip install httpx
+ 6️⃣	python-dotenv ->	Loads API keys securely from .env file	pip install python-dotenv
+ 7️⃣	pydantic ->	Validates request body and ensures structured input data	pip install pydantic
+ 8️⃣	asyncio -> (Built-in)	Handles asynchronous concurrency for API calls	No installation required
+ 9️⃣	requests (Optional) ->	For synchronous API calls (if needed)	pip install requests
 
 
 🧪 Why Virtual Environment (venv) Is Important
